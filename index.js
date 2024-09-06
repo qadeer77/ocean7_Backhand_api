@@ -49,7 +49,7 @@ app.post('/send-email', async (req, res) => {
         });
 
         let mailOptions = {
-            from: process.env.USER_EMAIL,
+            from: 'RECAPS@OCEAN7PROJECTS.COM',
             to: 'RECAPS@OCEAN7PROJECTS.COM',
             subject: emailSubject,
             text: 'Please find the attached PDF document for your submitted data.',
@@ -76,7 +76,7 @@ app.post('/send-email', async (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = 5000;
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);
