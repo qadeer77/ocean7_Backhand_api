@@ -2,7 +2,7 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const PDFDocument = require("pdfkit-table");
-const fs = require('fs');
+const { PassThrough } = require('stream'); 
 
 const app = express();
 app.use(cors());
@@ -20,11 +20,14 @@ app.post('/send-email', async (req, res) => {
     const carrierEntity = formValues1.carrierEntity || 'N/A';
     const emailSubject = `Subject Line: ${nominatedVessel}, Intended Rotation: ${intendedRotation}, Carrier Entity: ${carrierEntity}`;
 
-    const doc = new PDFDocument(); 
-    const filePath = `./output_${Date.now()}.pdf`;
-    const stream = fs.createWriteStream(filePath);
-    doc.pipe(stream);
+    // Create PDF in memory using a PassThrough stream
+    const doc = new PDFDocument();
+    const pdfStream = new PassThrough();
 
+    // Send PDF data directly to the stream
+    doc.pipe(pdfStream);
+
+    // Add content to the PDF
     doc.fontSize(16).text('Your Submitted Data', { align: 'center' });
 
     const tableData = {
@@ -39,7 +42,13 @@ app.post('/send-email', async (req, res) => {
 
     doc.end();
 
-    stream.on('finish', async () => {
+    // Collect PDF data in buffer to send via email
+    let buffers = [];
+    pdfStream.on('data', buffers.push.bind(buffers));
+    pdfStream.on('end', async () => {
+        let pdfBuffer = Buffer.concat(buffers);
+
+        // Setup Nodemailer transport
         let transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -50,13 +59,13 @@ app.post('/send-email', async (req, res) => {
 
         let mailOptions = {
             from: 'RECAPS@OCEAN7PROJECTS.COM',
-            to: 'RECAPS@OCEAN7PROJECTS.COM',
+            to: 'aq579733@gmail.com',
             subject: emailSubject,
             text: 'Please find the attached PDF document for your submitted data.',
             attachments: [
                 {
                     filename: 'data.pdf',
-                    path: filePath,
+                    content: pdfBuffer, // Send the PDF as a buffer
                     contentType: 'application/pdf',
                 }
             ],
@@ -65,14 +74,15 @@ app.post('/send-email', async (req, res) => {
         try {
             await transporter.sendMail(mailOptions);
             res.status(200).send('Email sent successfully with PDF attachment!');
-
-            fs.unlink(filePath, (err) => {
-                if (err) console.error('Error deleting file:', err);
-            });
         } catch (error) {
             console.error('Error sending email:', error);
             res.status(500).send('Failed to send email.');
         }
+    });
+
+    pdfStream.on('error', (error) => {
+        console.error('Error generating PDF:', error);
+        res.status(500).send('Failed to generate PDF.');
     });
 });
 
