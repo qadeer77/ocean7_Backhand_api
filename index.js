@@ -59,13 +59,13 @@ app.post('/send-email', async (req, res) => {
 
         let mailOptions = {
             from: 'RECAPS@OCEAN7PROJECTS.COM',
-            to: 'aq579733@gmail.com',
+            to: 'RECAPS@OCEAN7PROJECTS.COM',
             subject: emailSubject,
             text: 'Please find the attached PDF document for your submitted data.',
             attachments: [
                 {
                     filename: 'data.pdf',
-                    content: pdfBuffer, // Send the PDF as a buffer
+                    content: pdfBuffer, 
                     contentType: 'application/pdf',
                 }
             ],
