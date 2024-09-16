@@ -1,9 +1,12 @@
-const {join} = require('path');
-
 /**
  * @type {import("puppeteer").Configuration}
  */
 module.exports = {
-  // Changes the cache location for Puppeteer.
-  cacheDirectory: join(__dirname, '.cache', 'puppeteer'),
+    chrome: {
+        skipDownload: false, // Download Chrome (this is the default)
+    },
+    firefox: {
+        skipDownload: false, // Download Firefox (default is true, so we're changing it to false)
+    },
+    cacheDirectory: join(__dirname, '.cache', 'puppeteer'),
 };

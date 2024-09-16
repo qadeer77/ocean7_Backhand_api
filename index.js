@@ -121,7 +121,7 @@ app.post("/send-email", async (req, res) => {
 
         if (isForm1) {
             const browser = await puppeteer.launch({
-                executablePath: 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+                executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
             });
             const page = await browser.newPage();
             await page.setContent(htmlContent);
