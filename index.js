@@ -4,7 +4,6 @@ const cors = require("cors");
 const puppeteer = require("puppeteer");
 const { PassThrough } = require("stream");
 const PDFDocument = require("pdfkit-table");
-const chromium = require('chromium');
 
 const app = express();
 app.use(cors());
@@ -121,7 +120,7 @@ app.post("/send-email", async (req, res) => {
         const htmlContent = generateHTML(arrayData);
 
         if (isForm1) {
-            const browser = await puppeteer.launch(chromium.path);
+            const browser = await puppeteer.launch();
             const page = await browser.newPage();
             await page.setContent(htmlContent);
             const pdfBuffer = await page.pdf({ format: 'A4' });
