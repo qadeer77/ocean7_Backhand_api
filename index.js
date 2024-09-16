@@ -1,7 +1,7 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
-const pdf = require("html-pdf");
+const puppeteer = require("puppeteer");
 const { PassThrough } = require("stream");
 const PDFDocument = require("pdfkit-table");
 
@@ -95,8 +95,10 @@ const generateHTML = (arrayData) => {
 const sendEmail = async (emailOptions) => {
     let transporter = nodemailer.createTransport({
         service: "gmail",
-        auth: {   user: "preetkumar1970@gmail.com",
-            pass: "qgun ookb ndqh dwbn", }
+        auth: {
+            user: "preetkumar1970@gmail.com",
+            pass: "qgun ookb ndqh dwbn"
+        }
     });
     await transporter.sendMail(emailOptions);
 };
@@ -116,26 +118,25 @@ app.post("/send-email", async (req, res) => {
 
     try {
         const htmlContent = generateHTML(arrayData);
+
         if (isForm1) {
-            pdf.create(htmlContent).toStream(async (err, stream) => {
-                if (err) throw err;
-                const buffers = [];
-                stream.on("data", chunk => buffers.push(chunk));
-                stream.on("end", async () => {
-                    const pdfBuffer = Buffer.concat(buffers);
-                    const emailOptions = {
-                        from: "aq579733@gmail.com",
-                        to: "aq579733@gmail.com",
-                        subject: emailSubject,
-                        text: "Please find the attached PDF document for your submitted data.",
-                        attachments: [{ filename: "data.pdf", content: pdfBuffer, contentType: "application/pdf" }]
-                    };
-                    await sendEmail(emailOptions);
-                    res.status(200).send("Email sent successfully with PDF attachment!");
-                });
-                stream.on("error", () => res.status(500).send("Failed to generate PDF."));
-            });
-        } else {
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            await page.setContent(htmlContent);
+            const pdfBuffer = await page.pdf({ format: 'A4' });
+            await browser.close();
+
+            const emailOptions = {
+                from: "aq579733@gmail.com",
+                to: "aq579733@gmail.com",
+                subject: emailSubject,
+                text: "Please find the attached PDF document for your submitted data.",
+                attachments: [{ filename: "data.pdf", content: pdfBuffer, contentType: "application/pdf" }]
+            };
+            await sendEmail(emailOptions);
+            res.status(200).send("Email sent successfully with PDF attachment!");
+        } 
+        else {
             const doc = new PDFDocument();
             const pdfStream = new PassThrough();
             doc.pipe(pdfStream);
@@ -169,8 +170,8 @@ app.post("/send-email", async (req, res) => {
             pdfStream.on("end", async () => {
                 const pdfBuffer = Buffer.concat(buffers);
                 const emailOptions = {
-                    from: "aq579733@gmail.com",
-                    to: "aq579733@gmail.com",
+                    from: "HSEQ@Ocean7projects.com",
+                    to: "HSEQ@Ocean7projects.com",
                     subject: emailSubject,
                     text: "Please find the attached PDF document for your submitted data.",
                     attachments: [{ filename: "data.pdf", content: pdfBuffer, contentType: "application/pdf" }]
@@ -178,12 +179,14 @@ app.post("/send-email", async (req, res) => {
                 await sendEmail(emailOptions);
                 res.status(200).send("Email sent successfully with PDF attachment!");
             });
-            pdfStream.on("error", () => res.status(500).send("Failed to generate PDF."));
+            pdfStream.on("error", () => res.status(500).send("Error generating PDF."));
         }
     } catch (error) {
-        console.error("Error:", error);
-        res.status(500).send("An error occurred while processing your request.");
+        console.error("Error generating PDF or sending email:", error);
+        res.status(500).send("An error occurred while generating the PDF or sending the email.");
     }
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+app.listen(5000, () => {
+    console.log("Server started on port 5000");
+});
