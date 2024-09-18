@@ -3,10 +3,7 @@
     "builds": [
         {
             "src": "index.js",
-            "use": "@vercel/node",
-            "scripts": {
-                "install": "npx puppeteer browsers install chrome"
-            }
+            "use": "@vercel/node"
         }
     ],
     "routes": [

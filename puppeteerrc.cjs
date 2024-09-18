@@ -3,10 +3,10 @@
  */
 module.exports = {
     chrome: {
-        skipDownload: false, // Download Chrome (this is the default)
+        skipDownload: false, 
     },
     firefox: {
-        skipDownload: false, // Download Firefox (default is true, so we're changing it to false)
+        skipDownload: false, 
     },
     cacheDirectory: join(__dirname, '.cache', 'puppeteer'),
 };

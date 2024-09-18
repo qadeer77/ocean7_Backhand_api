@@ -120,7 +120,10 @@ app.post("/send-email", async (req, res) => {
         const htmlContent = generateHTML(arrayData);
 
         if (isForm1) {
-            const browser = await puppeteer.launch();
+            const browser = await puppeteer.launch({
+                executablePath: 'C:\\Users\\ISL\\.cache\\puppeteer\\chrome\\win64-128.0.6613.137\\chrome-win64\\chrome.exe', 
+                headless: true,
+            });
             const page = await browser.newPage();
             await page.setContent(htmlContent);
             const pdfBuffer = await page.pdf({ format: 'A4' });
