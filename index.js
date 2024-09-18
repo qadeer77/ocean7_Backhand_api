@@ -121,8 +121,8 @@ app.post("/send-email", async (req, res) => {
 
         if (isForm1) {
             const browser = await puppeteer.launch({
-                executablePath: 'C:\\Users\\ISL\\.cache\\puppeteer\\chrome\\win64-128.0.6613.137\\chrome-win64\\chrome.exe', 
                 headless: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
             });
             const page = await browser.newPage();
             await page.setContent(htmlContent);
