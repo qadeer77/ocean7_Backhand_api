@@ -1,15 +1,19 @@
 {
     "version": 2,
     "builds": [
-        {
-            "src": "index.js",
-            "use": "@vercel/node"
+      {
+        "src": "index.js",
+        "use": "@vercel/node",
+        "env": {
+          "PUPPETEER_EXECUTABLE_PATH": "C:\\Users\\ISL\\.cache\\puppeteer\\chrome\\win64-128.0.6613.137\\chrome-win64\\chrome.exe"
         }
+      }
     ],
     "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "index.js"
-        }
+      {
+        "src": "/(.*)",
+        "dest": "index.js"
+      }
     ]
-}
+  }
+  
